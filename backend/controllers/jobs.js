@@ -1,19 +1,87 @@
-
+const { StatusCodes } = require("http-status-codes")
+const { BadRequestError, NotFoundError } = require("../errors")
+const Job = require('../models/Job')
 
 const getAllJobs = async(req,res) => {
-    res.send('get all jobs')
+    const jobs = await Job
+    .find({createdBy:req.user.userId},{'_id':0,'__v':0})
+    .sort('createdAt')
+    res.status(StatusCodes.OK).json({jobs})
 }
 const getJob = async(req,res) => {
-    res.send('get job')
+    const { 
+        user: {
+            userId
+        },
+        params:{
+            id:jobId
+        },
+    } = req
+    const job = await Job.findOne({
+        _id:jobId,
+        createdBy:userId//potentially, someone can have your job id (hypothetical) so with this we just ensure that only the user (in the token) can access the job.
+    },{
+        '_id':0,
+        '__v':0
+    })
+    if(!job){
+        throw new NotFoundError(`No job found with id ${jobId}`)
+    }
+    res.status(StatusCodes.OK).json({job});
 }
 const createJob = async(req,res) => {
-    res.json(req.user)
+    req.body.createdBy = req.user.userId
+    const job = await Job.create(req.body)
+    res.status(StatusCodes.CREATED).json({job})
 }
 const updateJob = async(req,res) => {
-    res.send('update job')
+    const { 
+        user: {
+            userId
+        },
+        params:{
+            id:jobId
+        },
+        body:{
+            company,
+            position
+        }
+    } = req
+    if(company === '' || position === ''){
+        throw new BadRequestError('Company or Position fields cannot be empty')
+    }
+    const job = await Job.findOneAndUpdate({
+        _id:jobId,
+        createdBy:userId//same validation
+    },req.body,{
+        new:true,
+        runValidators:true
+    }).select('-_id -__v');
+    if(!job){
+        throw new NotFoundError(`No job found with id ${jobId}`)
+    }
+    res.status(StatusCodes.OK).json({job});
 }
 const deleteJob = async(req,res) => {
-    res.send('delete job')
+    const { 
+        user: {
+            userId
+        },
+        params:{
+            id:jobId
+        },
+    } = req
+    const job = await Job.deleteOne({
+        _id:jobId,
+        createdBy:userId
+    },{
+        '_id':0,
+        '__v':0
+    })
+    if(!job){
+        throw new NotFoundError(`No job found with id ${jobId}`)
+    }
+    res.status(StatusCodes.OK).send('Job deleted');
 }
 
 module.exports = {

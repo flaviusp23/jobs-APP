@@ -4,7 +4,7 @@ const Job = require('../models/Job')
 
 const getAllJobs = async(req,res) => {
     const jobs = await Job
-    .find({createdBy:req.user.userId},{'_id':0,'__v':0})
+    .find({createdBy:req.user.userId},{'__v':0})
     .sort('createdAt')
     res.status(StatusCodes.OK).json({jobs})
 }
@@ -21,7 +21,6 @@ const getJob = async(req,res) => {
         _id:jobId,
         createdBy:userId//potentially, someone can have your job id (hypothetical) so with this we just ensure that only the user (in the token) can access the job.
     },{
-        '_id':0,
         '__v':0
     })
     if(!job){
@@ -56,7 +55,7 @@ const updateJob = async(req,res) => {
     },req.body,{
         new:true,
         runValidators:true
-    }).select('-_id -__v');
+    }).select('-__v');
     if(!job){
         throw new NotFoundError(`No job found with id ${jobId}`)
     }
@@ -75,7 +74,6 @@ const deleteJob = async(req,res) => {
         _id:jobId,
         createdBy:userId
     },{
-        '_id':0,
         '__v':0
     })
     if(!job){

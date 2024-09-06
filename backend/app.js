@@ -1,12 +1,13 @@
 require('dotenv').config();
 require('express-async-errors');
 
+const path = require('path')
+
 //extra security package
 const helmet = require('helmet')
-const cors = require('cors');
 const xss = require('xss-clean')
 
-
+//express
 const express = require('express');
 const app = express();
 
@@ -25,18 +26,18 @@ const notFoundMiddleware = require('./middleware/not-found');
 const errorHandlerMiddleware = require('./middleware/error-handler');
 
 //extra packages
+app.use(express.static(path.resolve(__dirname,'../client/build')))
 app.use(express.json());
 app.use(helmet())
 app.use(xss())
-app.set('trust proxy', 1);
-app.use(cors({
-  origin: 'http://localhost:3000'
-}));
 
 // routes
 app.use('/api/v1/auth',authRouter)
 app.use('/api/v1/jobs',authenticateUser,jobsRouter)
 
+app.get('*',(req,res)=>{
+  res.sendFile(path.resolve(__dirname,'./client/build','index.html'))
+})
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);

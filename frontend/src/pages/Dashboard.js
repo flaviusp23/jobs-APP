@@ -23,8 +23,9 @@ function Dashboard() {
     }
   };
   useEffect(() => {
-    fetchJobs();
-  }, []);
+    fetchJobs(); // This will only run once on component mount
+  }, []); 
+  
   return (
     <>
       <Navbar />

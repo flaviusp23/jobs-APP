@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
 import { useGlobalContext } from '../context/appContext';
-import { useNavigation } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import FormRow from '../components/FormRow';
 import logo from '../assets/logo.svg';
 
@@ -12,28 +12,35 @@ function Register() {
     password: '',
     isMember: true,
   });
-  const navigate = useNavigation
+  const navigate = useNavigate();
   const { user, register, login, isLoading, showAlert } = useGlobalContext();
+
   const toggleMember = () => {
     setValues({ ...values, isMember: !values.isMember });
   };
+
   const handleChange = (e) => {
     setValues({ ...values, [e.target.name]: e.target.value });
   };
+
   const onSubmit = (e) => {
     e.preventDefault();
     const { name, email, password, isMember } = values;
 
     if (isMember) {
-      login({ email, password });
+      login({ email, password }).then(() => {
+        navigate('/dashboard');
+      });
     } else {
-      register({ name, email, password });
+      register({ name, email, password }).then(() => {
+        navigate('/dashboard');
+      });
     }
   };
 
   return (
     <>
-      {user && <navigate to='/dashboard' />}
+      {user && <Navigate to='/dashboard' />}
       <Wrapper className='page full-page'>
         <div className='container'>
           {showAlert && (
@@ -104,7 +111,7 @@ const Wrapper = styled.section`
     margin-bottom: 1.38rem;
   }
   .form {
-    max-width: 400;
+    max-width: 400px;
     border-top: 5px solid var(--primary-500);
   }
 

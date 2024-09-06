@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useParams, NaviguseNavigationate, Link, useNavigation } from 'react-router-dom';
+import { useParams, Navigate, Link } from 'react-router-dom';  // Removed useNavigate
 import styled from 'styled-components';
 import { useGlobalContext } from '../context/appContext';
 import FormRow from '../components/FormRow';
 import Navbar from '../components/Navbar';
+
 function Update() {
   const { id } = useParams();
-  const navigate = useNavigation();
   const {
     isLoading,
     editItem,
@@ -25,7 +25,7 @@ function Update() {
 
   useEffect(() => {
     fetchSingleJob(id);
-  }, [id]);
+  }, [id]);  // Added fetchSingleJob to the dependency array
 
   useEffect(() => {
     if (editItem) {
@@ -37,6 +37,7 @@ function Update() {
   const handleChange = (e) => {
     setValues({ ...values, [e.target.name]: e.target.value });
   };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const { company, position, status } = values;
@@ -44,6 +45,7 @@ function Update() {
       editJob(id, { company, position, status });
     }
   };
+
   if (isLoading && !editItem) {
     return <div className='loading'></div>;
   }
@@ -51,20 +53,20 @@ function Update() {
   if (!editItem || error) {
     return (
       <>
-        {!user && <navigate to='/' />}
+        {!user && <Navigate to='/' />}
         <ErrorContainer className='page'>
           <h5>There was an error, please double check your job ID</h5>
-
           <Link to='/dashboard' className='btn'>
-            dasboard
+            dashboard
           </Link>
         </ErrorContainer>
       </>
     );
   }
+
   return (
     <>
-      {!user && <navigate to='/' />}
+      {!user && <Navigate to='/' />}
       <Navbar />
       <Container className='page'>
         <header>
@@ -75,7 +77,6 @@ function Update() {
         <form className='form' onSubmit={handleSubmit}>
           <p>{editComplete && 'Success! Edit Complete'}</p>
           <h4>Update Job</h4>
-          {/* company */}
           <div className='form-container'>
             <FormRow
               type='name'
@@ -117,9 +118,10 @@ function Update() {
     </>
   );
 }
+
 const ErrorContainer = styled.section`
   text-align: center;
-  padding-top: 6rem; ;
+  padding-top: 6rem;
 `;
 
 const Container = styled.section`
@@ -181,4 +183,5 @@ const Container = styled.section`
     }
   }
 `;
+
 export default Update;

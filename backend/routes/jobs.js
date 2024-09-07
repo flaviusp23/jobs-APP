@@ -4,14 +4,19 @@ const {
     getJob, 
     updateJob, 
     deleteJob, 
-    createJob 
+    createJob,
+    showStats
 } = require('../controllers/jobs');
 const testUser = require('../middleware/testUser');
 const router = express.Router()
-router.get('/',getAllJobs);
-router.post('/',testUser,createJob);
-router.get('/:id',getJob);
-router.patch('/:id',testUser,updateJob);
-router.delete('/:id',testUser,deleteJob);
+
+router.route('/').post(testUser, createJob).get(getAllJobs);
+router.route('/stats').get(showStats);
+
+router
+  .route('/:id')
+  .get(getJob)
+  .delete(testUser, deleteJob)
+  .patch(testUser, updateJob);
 
 module.exports = router

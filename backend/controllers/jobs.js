@@ -1,6 +1,31 @@
 const { StatusCodes } = require("http-status-codes")
 const { BadRequestError, NotFoundError } = require("../errors")
 const Job = require('../models/Job')
+const mongoose = require('mongoose')
+const moment = require('moment')
+
+
+const showStats = async (req,res) => {
+    let stats = await Job.aggregate([
+        { $match: { createdBy: new mongoose.Types.ObjectId(req.user.userId) } },
+        { $group: { _id:'$status', count: {$sum: 1 }} },
+    ])
+    //refactor backend response then frontend
+    // console.log(stats); // from this
+    const formattedStats = {};
+    stats.forEach(item => {
+        formattedStats[item._id] = item.count;
+    });
+    // console.log(formattedStats); // to this
+    const defaultStats = {
+        pending: formattedStats.pending || 0,
+        interview: formattedStats.interview || 0,
+        declined: formattedStats.declined || 0,
+    }
+    res
+      .status(StatusCodes.OK)
+      .json({ defaultStats,  monthlyApplications: []})
+}
 
 const getAllJobs = async(req,res) => {
     const { search, status, jobType, sort  } = req.query;
@@ -121,4 +146,5 @@ module.exports = {
     createJob,
     updateJob,
     deleteJob,
+    showStats,
 }

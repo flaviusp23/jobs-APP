@@ -22,9 +22,36 @@ const showStats = async (req,res) => {
         interview: formattedStats.interview || 0,
         declined: formattedStats.declined || 0,
     }
+
+    let monthlyApplications = await Job.aggregate([
+        { $match: { createdBy: new mongoose.Types.ObjectId(req.user.userId) } },
+        {
+          $group: {
+            _id: { year: { $year: '$createdAt' }, month: { $month: '$createdAt' } },
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { '_id.year': -1, '_id.month': -1 } },
+        { $limit: 6 },
+      ]);
+    // console.log(monthlyApplications) // refactor from this
+    monthlyApplications = monthlyApplications
+    .map((item) => {
+      const {
+        _id: { year, month },
+        count,
+      } = item;
+      const date = moment()
+        .month(month - 1)
+        .year(year)
+        .format('MMM Y');
+      return { date, count };
+    })
+    .reverse();
+    // console.log(formattedApplications) // to this
     res
       .status(StatusCodes.OK)
-      .json({ defaultStats,  monthlyApplications: []})
+      .json({ defaultStats,  monthlyApplications})
 }
 
 const getAllJobs = async(req,res) => {

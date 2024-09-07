@@ -6,6 +6,7 @@ const path = require('path')
 //extra security package
 const helmet = require('helmet')
 const xss = require('xss-clean')
+const morgan = require('morgan')
 
 //express
 const express = require('express');
@@ -32,6 +33,7 @@ app.use(express.static(path.resolve(__dirname,'../client/build')))
 app.use(express.json());
 app.use(helmet())
 app.use(xss())
+app.use(morgan('combined'))
 
 // routes
 app.use('/api/v1/auth',authRouter)

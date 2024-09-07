@@ -10,7 +10,7 @@ const apiLimiter = rateLimiter({
     windowMs:15*60*1000, // 15minutes
     max:5,
     message: {
-        msg: 'Please try again after 15 minutes'
+        msg: 'Too many requests. Please try again later.'
     }
 })
 

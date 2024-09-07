@@ -4,8 +4,18 @@ const authenticateUser = require('../middleware/authentication')
 const testUser = require('../middleware/testUser')
 const router = express.Router()
 
-router.post('/login',login)
-router.post('/register',register)
+const rateLimiter = require('express-rate-limit')
+
+const apiLimiter = rateLimiter({
+    windowMs:15*60*1000, // 15minutes
+    max:5,
+    message: {
+        msg: 'Please try again after 15 minutes'
+    }
+})
+
+router.post('/login',apiLimiter,login)
+router.post('/register',apiLimiter,register)
 router.patch('/updateUser',authenticateUser, testUser, updateUser)
 
 module.exports = router
